@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const serve = require('electron-serve');
 const loadURL = serve({ directory: 'public' });
@@ -26,7 +26,17 @@ function createWindow() {
         icon: path.join(__dirname, 'public/favicon.png'),
         show: false
     });
-
+    ipcMain.on('requestSystemInfo', async (event, message) => {
+        const versionChrome = process.versions.chrome;
+        const versionNode = process.versions.node;
+        const versionElectron = process.versions.electron;
+        const result = {
+            chrome: versionChrome,
+            node: versionNode,
+            electron: versionElectron
+        }
+        mainWindow.webContents.send("getSystemInfo", result);
+      });
     // This block of code is intended for development purpose only.
     // Delete this entire block of code when you are ready to package the application.
     if (isDev()) {
