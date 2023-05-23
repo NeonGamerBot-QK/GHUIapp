@@ -3,7 +3,7 @@
     let node = "-";
     let electron = "-";
     globalThis.api.send("requestSystemInfo", null);
-    globalThis.api.receive("getSystemInfo", (data) => {
+    globalThis.api.receive("getSystemInfo", (data: { chrome: string; node: string; electron: string; }) => {
         chrome = data.chrome;
         node = data.node;
         electron = data.electron;

@@ -1,9 +1,10 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification } = require('electron');
+const  { autoUpdater } = require('electron-updater')
 const path = require('path');
 const serve = require('electron-serve');
 const loadURL = serve({ directory: 'public' });
-
+require('electron-reload')(__dirname);
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -20,8 +21,8 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             preload: path.join(__dirname, 'preload.js'),
-            // enableRemoteModule: true,
-            // contextIsolation: false
+            contextIsolation: true,
+            enableRemoteModule: true
         },
         icon: path.join(__dirname, 'public/favicon.png'),
         show: false
@@ -41,16 +42,17 @@ function createWindow() {
     // Delete this entire block of code when you are ready to package the application.
     if (isDev()) {
         mainWindow.loadURL('http://localhost:8080/');
+            // Open the DevTools and also disable Electron Security Warning.
+    mainWindow.webContents.openDevTools();
     } else {
+    process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = true
         loadURL(mainWindow);
     }
     
     // Uncomment the following line of code when app is ready to be packaged.
     // loadURL(mainWindow);
 
-    // Open the DevTools and also disable Electron Security Warning.
-    // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = true;
-    // mainWindow.webContents.openDevTools();
+
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -80,6 +82,31 @@ app.on('window-all-closed', function () {
 });
 
 app.on('activate', function () {
+    autoUpdater.checkForUpdates();
+    autoUpdater.on("update-available", () => {
+       let  notification = new Notification({
+            title: "GIT UI app",
+            body: "Updates are available. Click to download.",
+            silent: true,
+    
+        });
+        notification.show();
+        notification.on("click", () => {
+                autoUpdater.downloadUpdate();
+        });
+    });
+      
+    autoUpdater.on("update-downloaded", () => {
+        let notification = new Notification({
+            title: "GIT UI app",
+            body: "The updates are ready. Click to quit and install.",
+            silent: true,
+        });
+        notification.show();
+        notification.on("click", () => {
+            autoUpdater.quitAndInstall();
+        });
+    });
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow()

@@ -29,7 +29,9 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "electron-serve": "^1.1.0"
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-serve": "^1.1.0",
+    "electron-updater": "^5.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",
